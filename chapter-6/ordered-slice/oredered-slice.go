@@ -12,14 +12,17 @@ type OrderedSlice[T comparable] struct {
 
 func (orderedSlice *OrderedSlice[T]) Add(value T) {
 	index := orderedSlice.binarySearch(value)
-	if index == len(orderedSlice.storage) {
+	if index == len(orderedSlice.storage) { // no inserted value in slice, so we just append it to the end of storage
 		orderedSlice.storage = append(orderedSlice.storage, value)
-	} else if index == 0 {
+	} else if index == 0 { // need to create new storage, where first elem is inserted value, and others -> old storage
 		temp := make([]T, orderedSlice.Len()+1)
 		temp[0] = value
 		copy(temp[1:], orderedSlice.storage)
 		orderedSlice.storage = temp
 	} else {
+		// Comparing elem by searched index to inserted value. If inserted value is greater than value by index,
+		// we need to increase index to copy left part of storage correctly
+		// (including value by index before increasing).
 		switch v := any(value).(type) {
 		case int:
 			if any(orderedSlice.storage[index]).(int) < v {
